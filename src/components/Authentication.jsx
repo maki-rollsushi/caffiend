@@ -1,15 +1,32 @@
 import { use, useState } from "react"
+import { useAuth } from "../context/AuthContext"
 
 
 export default function Authentication()  {
     const [isReg, setIsReg] = useState(false)
     const [email, setEmail] = useState('')
     const [pass, setPass] = useState('')
-    const [authenticating, setAuthenticating] = useState(false)
-
-
+    const [isAuth, setIsAuth] = useState(false)
+    const [error, setError] = useState(null)
+    const {signup, login} = useAuth()
     async function handleAuth() {
-        console.log(5)
+        if(!email || !email.includes('@' || !password || !password.length < 6 || isAuth)) {return}
+        try{
+            setIsAuth(true)
+            setError(null)
+            
+            if(isReg){
+                await signup(email, pass)
+            }else{
+                await login(email, pass)
+            }
+            
+        }catch(err){
+            console.log(err.message)
+            setError(err.message)
+        }finally{
+            setIsAuth(false)
+        }
     }
 
     return (
@@ -19,10 +36,10 @@ export default function Authentication()  {
             <input value = {email} onChange={(e) => {
                 setEmail(e.target.value)
             }}placeholder="Email"/>
-            <input value = {pass} onChange={(e) => {
+            <input type='password' value = {pass} onChange={(e) => {
                 setPass(e.target.value)
             }}placeholder="***********"/>
-            <button onClick={handleAuth}><p>Submit</p></button>
+            <button onClick={handleAuth}><p>{isAuth ? 'Authenticating...' : 'Submit'}</p></button>
             <hr />
             <div className = 'register-content'>
                 <p>{isReg ? 'Already have an Account?': 'Don\'t have an account?' }</p>
